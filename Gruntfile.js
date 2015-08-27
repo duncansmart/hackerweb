@@ -10,10 +10,8 @@ module.exports = function(grunt) {
 						return path.replace(/^js\//i, '') + '.map';
 					},
 					sourceMapRoot: '../',
-					beautify: {
-						max_line_len: 500,
-						screw_ie8: true
-					}
+					maxLineLen: 500,
+					screwIE8: true
 				},
 				files: {
 					'js/hw-web.min.js': [
@@ -36,10 +34,8 @@ module.exports = function(grunt) {
 						return path.replace(/^js\//i, '') + '.map';
 					},
 					sourceMapRoot: '../',
-					beautify: {
-						max_line_len: 500,
-						screw_ie8: true
-					}
+					maxLineLen: 500,
+					screwIE8: true
 				},
 				files: {
 					'js/hw-ios.min.js': [
@@ -63,10 +59,8 @@ module.exports = function(grunt) {
 						return path.replace(/^js\//i, '') + '.map';
 					},
 					sourceMapRoot: '../',
-					beautify: {
-						max_line_len: 500,
-						screw_ie8: true
-					}
+					maxLineLen: 500,
+					screwIE8: true
 				},
 				files: {
 					'js/hw-ios-2.min.js': [
@@ -82,6 +76,17 @@ module.exports = function(grunt) {
 						'assets/js/hw-ios-2.js'
 					]
 				}
+			}
+		},
+		cssmin: {
+			target: {
+				files: [{
+					expand: true,
+					cwd: 'assets/css',
+					src: ['*.css', '!*.min.css'],
+					dest: 'assets/css',
+					ext: '.min.css'
+				}]
 			}
 		},
 		jshint: {
@@ -108,6 +113,13 @@ module.exports = function(grunt) {
 				],
 				tasks: ['uglify']
 			},
+			css: {
+				files: [
+					'assets/css/*.css',
+					'!assets/css/*.min.css'
+				],
+				tasks: ['cssmin']
+			},
 			templates: {
 				files: 'assets/templates/*.mustache',
 				tasks: ['templates']
@@ -124,23 +136,7 @@ module.exports = function(grunt) {
 					port: process.env.HACKERWEB_PORT || 80,
 					keepalive: true,
 					hostname: '*',
-					debug: true,
-					// middleware: function(connect, options){
-					// 	var appcache = grunt.option('appcache');
-					// 	grunt.log.writeln('Application Cache: ' + (appcache ? 'ON' : 'OFF'));
-					// 	return [
-					// 		function(req, res, next){
-					// 			if (req.url == '/manifest.appcache' && !appcache){
-					// 				res.writeHead(404);
-					// 				res.end();
-					// 			} else {
-					// 				next();
-					// 			}
-					// 		},
-					// 		connect.static(options.base),
-					// 		connect.directory(options.base)
-					// 	];
-					// }
+					debug: true
 				}
 			}
 		},
@@ -149,24 +145,6 @@ module.exports = function(grunt) {
 				tasks: ['watch', 'connect'],
 				options: {
 					logConcurrentOutput: true
-				}
-			}
-		},
-		bumpAppCache: {
-			files: ['manifest.appcache'],
-			options: {
-				rVersion: /#\s(\d+\-.*)/i,
-				format: function(match, version){
-					version = version.replace(/\d+\-\d+\-\d+/i, function(date){
-						var d = new Date();
-						var month = d.getMonth() + 1;
-						if (month < 10) month = '0' + month;
-						var date = d.getDate();
-						if (date < 10) date = '0' + date;
-						var dateStr = d.getFullYear() + '-' + month + '-' + date;
-						return dateStr;
-					});
-					return '# ' + version;
 				}
 			}
 		},
@@ -191,6 +169,7 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-watch');
 	grunt.loadNpmTasks('grunt-concurrent');
 	grunt.loadNpmTasks('grunt-shell');
+	grunt.loadNpmTasks('grunt-contrib-cssmin');
 
 	// Configurable port number
 	var port = grunt.option('port');
@@ -199,7 +178,6 @@ module.exports = function(grunt) {
 	grunt.registerTask('server', 'concurrent:server');
 
 	// Shorter aliases
-	grunt.registerTask('bump', 'bumpAppCache');
 	grunt.registerTask('deploy', 'shell:deploy');
 
 };
